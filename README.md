@@ -15,7 +15,7 @@ This repository is the official implementation of paper: “Metric Mirages in Ce
 ```
 
 ### Usage
-We include scripts and codes to reproduce all the results, see <a href="script/">script</a> folder. We use conda to set up the environment:
+We include scripts and codes to reproduce all the results, see <a href="scripts/">scripts</a> folder. We use conda to set up the environment:
 ```bash
 conda env create -f env.yml
 ```
