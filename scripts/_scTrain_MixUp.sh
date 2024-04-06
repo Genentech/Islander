@@ -1,4 +1,4 @@
-cd ${HOME}/G-scIB_dev/src
+cd ${HOME}/Islander/src
 
 export LR=0.001
 export EPOCH=10
@@ -11,7 +11,7 @@ export DATASET_List=("lung" "lung_fetal_donor" "lung_fetal_organoid" \
 
 for DATASET in "${DATASET_List[@]}"; do
 export PROJECT="_${DATASET}_"
-export SavePrefix="${HOME}/G-scIB_dev/models/${PROJECT}"
+export SavePrefix="${HOME}/Islander/models/${PROJECT}"
 mkdir -p $SavePrefix
 for MLPSIZE in "${MLP_List[@]}"; do
 for LEAKAGE in "${LEAKAGE_List[@]}"; do

@@ -1,4 +1,4 @@
-cd ${HOME}/G-scIB_dev/src
+cd ${HOME}/Islander/src
 
 # export DATASET_List=("brain" "breast" "COVID")
 export DATASET_List=("brain")
@@ -10,5 +10,5 @@ python scBenchmarker.py \
     --obsm_keys Geneformer \
     --dataset "${DATASET}" \
     --savecsv "${DATASET}_Geneformer_Board" \
-    --save_path "${HOME}/G-scIB_dev/models/_${DATASET}_/MODE-mixup-ONLY_LEAK-16_MLP-128 128";
+    --save_path "${HOME}/Islander/models/_${DATASET}_/MODE-mixup-ONLY_LEAK-16_MLP-128 128";
 done

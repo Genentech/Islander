@@ -1,4 +1,4 @@
-cd ${HOME}/G-scIB_dev/src
+cd ${HOME}/Islander/src
 
 export DATASET_List=("lung" "lung_fetal_donor" "lung_fetal_organoid" \
     "brain" "breast" "heart" "eye" "gut_fetal" "skin" "COVID" "pancreas")

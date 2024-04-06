@@ -1,4 +1,4 @@
-cd ${HOME}/G-scIB_dev/src
+cd ${HOME}/Islander/src
 
 # export DATASET_List=("heart" "eye" "gut_fetal" "skin" "COVID" "pancreas" \
 #     "brain" "lung_fetal_donor" "lung_fetal_organoid" "breast" "lung")
@@ -31,5 +31,5 @@ python scBenchmarker.py \
     --islander \
     --saveadata \
     --dataset "${DATASET}" \
-    --save_path "${HOME}/G-scIB_dev/models/_${DATASET}_/MODE-mixup-ONLY_LEAK-16_MLP-128 128";
+    --save_path "${HOME}/Islander/models/_${DATASET}_/MODE-mixup-ONLY_LEAK-16_MLP-128 128";
 done
