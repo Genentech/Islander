@@ -36,9 +36,7 @@ class scFineTuner(scIB):
         if self.args.use_raw:
             adata = sc.read(dh.DATA_RAW_[self.args.dataset], first_column_names=True)
             if self.args.highvar:
-                self._str_formatter(
-                    "using top %d highly variable genes" % self.args.highvar_n
-                )
+                self._str_formatter("using top %d highly variable genes" % self.args.highvar_n)
                 sc.pp.highly_variable_genes(
                     adata,
                     subset=True,
@@ -105,9 +103,7 @@ class scFineTuner(scIB):
         mixed_x = lam * emb_b + (1 - lam) * emb_b[index, :]
         y_a, y_b = cell_type, cell_type[index]
 
-        return lam * self._loss_cet(mixed_x, y_a) + (1 - lam) * self._loss_cet(
-            mixed_x, y_b
-        )
+        return lam * self._loss_cet(mixed_x, y_a) + (1 - lam) * self._loss_cet(mixed_x, y_b)
 
     def _finetune_(self):
         model_cfg = self.args.save_path.split("/")[-1]
@@ -122,11 +118,7 @@ class scFineTuner(scIB):
         self._load_model()
         BEST_TEST = 1e4
 
-        self.model.projector = torch.nn.Linear(
-            self.args.leakage, self.NUM_CELLTYPE, bias=False
-        ).to(
-            self.device
-        )  # without bias doesn't matter that much
+        self.model.projector = torch.nn.Linear(self.args.leakage, self.NUM_CELLTYPE, bias=False).to(self.device)  # without bias doesn't matter that much
 
         if self.args.savename_ft:
             SAVE_PATH = self.args.savename_ft
@@ -182,9 +174,7 @@ class scFineTuner(scIB):
                 )
 
                 if REC_GRADS:
-                    LossWeights["cet"].append(
-                        uh.Weights_on_GradNorm(self.model, loss_cet, loss_rec)
-                    )
+                    LossWeights["cet"].append(uh.Weights_on_GradNorm(self.model, loss_cet, loss_rec))
 
                 else:
                     loss.backward()
@@ -306,9 +296,7 @@ class scFineTuner_SCL(scFineTuner):
         self._prep_dataloader_()
         self._load_model()
 
-        self.model.projector = nn.Linear(self.args.leakage, self.NUM_CELLTYPE).to(
-            self.device
-        )
+        self.model.projector = nn.Linear(self.args.leakage, self.NUM_CELLTYPE).to(self.device)
 
         if self.args.savename_ft:
             SAVE_PATH = self.args.savename_ft
@@ -500,9 +488,7 @@ class scFineTuner_PSL(scFineTuner):
             json.dump(vars(self.args), outfile)
 
         """ === Projector === """
-        self.model.projector = nn.Linear(
-            self.args.leakage, self.NUM_CELLTYPE, bias=True
-        ).to(self.device)
+        self.model.projector = nn.Linear(self.args.leakage, self.NUM_CELLTYPE, bias=True).to(self.device)
         # bias=False, doesn't matter that much
 
         """ === MoCo with Memory Bank === """
@@ -551,12 +537,8 @@ class scFineTuner_PSL(scFineTuner):
                 """ === MoCo with Memory Bank === """
                 with torch.no_grad():
                     # update the key encoder
-                    for param_q, param_k in zip(
-                        encoder_q.parameters(), encoder_k.parameters()
-                    ):
-                        param_k.data = param_k.data * MOMENTUM + param_q.data * (
-                            1.0 - MOMENTUM
-                        )
+                    for param_q, param_k in zip(encoder_q.parameters(), encoder_k.parameters()):
+                        param_k.data = param_k.data * MOMENTUM + param_q.data * (1.0 - MOMENTUM)
 
                     # compute key features
                     k = encoder_k(counts_)[:, dh.TOTAL_CONCEPTS :]
@@ -580,9 +562,7 @@ class scFineTuner_PSL(scFineTuner):
 
                 # update / record gradients
                 if REC_GRADS and (epoch + 1) % 2 == 0:
-                    LossWeights["psl"].append(
-                        uh.Weights_on_GradNorm(self.model, loss_pls, loss_rec)
-                    )
+                    LossWeights["psl"].append(uh.Weights_on_GradNorm(self.model, loss_pls, loss_rec))
                 else:
                     loss.backward()
                     Opt.step()

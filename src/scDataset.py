@@ -1,7 +1,7 @@
 # Ref: https://github.com/theislab/dca/blob/master/dca/io.py
 from __future__ import division, print_function, absolute_import
 import os, json, time, torch, shutil, random, pickle, numpy as np, scanpy as sc, Data_Handler as dh
-from scipy.sparse import issparse, save_npz, load_npz, hstack, csr_matrix
+from scipy.sparse import save_npz, load_npz, csr_matrix
 from torch.utils.data import Dataset, DataLoader
 from os.path import join, exists
 from typing import Union
@@ -26,7 +26,6 @@ class scDataset(Dataset):
         self,
         random_state: AnyRandom = None,
         num_cells: int = NumCells,
-        # full_train: bool = False,
         test_ratio: float = 0.1,
         inference: bool = False,
         rm_cache: bool = False,
@@ -97,10 +96,7 @@ class scDataset(Dataset):
         self._outpath = join(dh.DATA_DIR, self.dataset, "Train")
         if not exists(self._outpath):
             return False
-        if (
-            len(os.listdir(self._outpath))
-            < (self.n_obs // self.n_cells) * (1 - self.test_ratio - 0.05) * 2
-        ):
+        if len(os.listdir(self._outpath)) < (self.n_obs // self.n_cells) * (1 - self.test_ratio - 0.05) * 2:
             return False
         return True
 
@@ -154,14 +150,8 @@ class scDataset(Dataset):
     def _conceptualize(self, adata, mask_tokens=["nan", "unknown"]):
         obj = dict()
 
-        obj["cell_type"] = (
-            adata.obs[self.label_key].apply(lambda x: self.CELL2CAT[x]).values.to_list()
-        )
-        obj["batch_id"] = (
-            adata.obs[self.batch_key]
-            .apply(lambda x: self.BATCH2CAT[x])
-            .values.to_list()
-        )
+        obj["cell_type"] = adata.obs[self.label_key].apply(lambda x: self.CELL2CAT[x]).values.to_list()
+        obj["batch_id"] = adata.obs[self.batch_key].apply(lambda x: self.BATCH2CAT[x]).values.to_list()
 
         return obj
 
@@ -175,9 +165,7 @@ class scDataset(Dataset):
         self.file_list = []
 
         for item in os.listdir(_path):
-            self.file_list.append(
-                join(_path, item.replace(".npz", "").replace(".pkl", ""))
-            )
+            self.file_list.append(join(_path, item.replace(".npz", "").replace(".pkl", "")))
         # self.file_list = list(set(self.file_list))
         # if self.inference:
         #     self.file_list.sort()
@@ -186,9 +174,7 @@ class scDataset(Dataset):
             _split = "Train" if _split == "Test" else "Test"
             _path = join(_outpath, _split)
             for item in os.listdir(_path):
-                self.file_list.append(
-                    join(_path, item.replace(".npz", "").replace(".pkl", ""))
-                )
+                self.file_list.append(join(_path, item.replace(".npz", "").replace(".pkl", "")))
         self.file_list = list(set(self.file_list))
         if self.inference:
             self.file_list.sort()
@@ -203,17 +189,13 @@ class scDataset(Dataset):
 
         _num_batch = round(_num_cells / self.n_cells)
         train_ids = np.ones(_num_batch)
-        zero_indices = np.random.choice(
-            _num_batch - 1, int(_num_batch * self.test_ratio), replace=False
-        )
+        zero_indices = np.random.choice(_num_batch - 1, int(_num_batch * self.test_ratio), replace=False)
         train_ids[zero_indices] = 0
         train_ids[-1] = 0
         train_ids = train_ids.astype(bool)
 
         for _idx in tqdm(range(_num_batch)):
-            adata_subset = self.adata[
-                _ids[_idx * self.n_cells : (_idx + 1) * self.n_cells]
-            ].copy()
+            adata_subset = self.adata[_ids[_idx * self.n_cells : (_idx + 1) * self.n_cells]].copy()
 
             obj = self._conceptualize(adata_subset)
             _split = "Train" if train_ids[_idx] else "Test"
@@ -233,9 +215,7 @@ class scDataset(Dataset):
         _num_cells = self.adata.__len__()
         _ids = np.arange(_num_cells)
         for _idx in tqdm(range(_num_cells // self.n_cells + 1)):
-            adata_subset = self.adata[
-                _ids[_idx * self.n_cells : (_idx + 1) * self.n_cells]
-            ].copy()
+            adata_subset = self.adata[_ids[_idx * self.n_cells : (_idx + 1) * self.n_cells]].copy()
             obj = self._conceptualize(adata_subset)
             _outfile = join(self._outpath, "_%s.pkl" % str(_idx).zfill(10))
             if isinstance(adata_subset.X, np.ndarray):
@@ -267,11 +247,7 @@ def collate_fn(batch):
     for sample in batch:
         if isinstance(sample, dict):
             for key, value in sample.items():
-                if (
-                    isinstance(value, torch.Tensor)
-                    or isinstance(value, np.ndarray)
-                    or isinstance(value, list)
-                ):
+                if isinstance(value, torch.Tensor) or isinstance(value, np.ndarray) or isinstance(value, list):
                     if key not in output:
                         output[key] = []
                     output[key].append(value)
@@ -300,24 +276,74 @@ class TripletDataset(Dataset):
             infos = pickle.load(open(_file + ".pkl", "rb"))
             self.labels.append(infos["cell_type"])
         self.labels_set = list(set(self.labels.numpy()))
-        self.label_to_indices = {
-            label: torch.where(self.labels == label)[0] for label in self.labels_set
-        }
+        self.label_to_indices = {label: torch.where(self.labels == label)[0] for label in self.labels_set}
 
     def __getitem__(self, index):
         anchor, label = self.file_list[index], self.labels[index]
         positive_index = index
         while positive_index == index:
             positive_index = np.random.choice(self.label_to_indices[label])
-        negative_label = np.random.choice(
-            list(filter(lambda x: x != label, self.labels_set))
-        )
+        negative_label = np.random.choice(list(filter(lambda x: x != label, self.labels_set)))
         negative_index = np.random.choice(self.label_to_indices[negative_label])
         positive, negative = (
             self.file_list[positive_index],
             self.file_list[negative_index],
         )
+
         return anchor, positive, negative
+
+    def __len__(self):
+        return len(self.file_list)
+
+
+class TripletDatasetDUAL(Dataset):
+    def __init__(self, scDataset):
+        self.file_list = scDataset.file_list
+        self.CELL2CAT = scDataset.CELL2CAT
+        self.n_vars = scDataset.n_vars
+        # self.BATCH2CAT = dh.BATCH2CAT_[self.dataset]
+        # self.batch_key = dh.META_[self.dataset]["batch"]
+        # self.label_key = dh.META_[self.dataset]["celltype"]
+
+    def __getitem__(self, index):
+        _idx = self.file_list[index]
+        anchor_counts = torch.Tensor(load_npz(_idx + ".npz").toarray())
+        anchor_labels = pickle.load(open(_idx + ".pkl", "rb"))["cell_type"]
+
+        # Randomly select a different file
+        r_idx = np.random.choice(self.file_list)
+        r_counts = torch.Tensor(load_npz(r_idx + ".npz").toarray())
+        r_labels = pickle.load(open(r_idx + ".pkl", "rb"))["cell_type"]
+
+        # Create union of counts and labels
+        union_counts = torch.cat([anchor_counts, r_counts])
+        union_labels = anchor_labels + r_labels
+        positives, negatives = [], []
+
+        # Iterate over each data point in the anchor file
+        for i in range(len(anchor_labels)):
+            # Find a positive example (different data point within the same file)
+            pos_indices = [j for j in range(len(anchor_labels)) if anchor_labels[j] == anchor_labels[i] and j != i]
+            if pos_indices:
+                pos_index = np.random.choice(pos_indices)
+                positive = union_counts[pos_index]
+            else:
+                # If no valid positive found in the same file, use the anchor as a last resort
+                positive = anchor_counts[i]
+
+            # Find a negative example (any data point from a different file with a different label)
+            neg_indices = [k for k in range(len(anchor_labels), len(union_labels)) if union_labels[k] != anchor_labels[i]]
+            if neg_indices:
+                neg_index = np.random.choice(neg_indices)
+                negative = union_counts[neg_index]
+            else:
+                # Fallback if no negative found (extremely rare case)
+                negative = torch.rand(anchor_counts.shape[1])  # Random tensor as a last resort
+
+            positives.append(positive.unsqueeze(0))
+            negatives.append(negative.unsqueeze(0))
+
+        return {"anchor": anchor_counts, "positive": torch.cat(positives), "negative": torch.cat(negatives)}
 
     def __len__(self):
         return len(self.file_list)
@@ -332,9 +358,7 @@ class ContrastiveDataset(Dataset):
             infos = pickle.load(open(_file + ".pkl", "rb"))
             self.labels.append(infos["cell_type"])
         self.labels_set = list(set(self.labels.numpy()))
-        self.label_to_indices = {
-            label: torch.where(self.labels == label)[0] for label in self.labels_set
-        }
+        self.label_to_indices = {label: torch.where(self.labels == label)[0] for label in self.labels_set}
 
     def __getitem__(self, index):
         data1, label1 = self.file_list[index], self.labels[index]
@@ -347,9 +371,7 @@ class ContrastiveDataset(Dataset):
                 if idx2 != index:
                     break
         else:
-            label2 = np.random.choice(
-                list(filter(lambda x: x != label1, self.labels_set))
-            )
+            label2 = np.random.choice(list(filter(lambda x: x != label1, self.labels_set)))
             idx2 = np.random.choice(self.label_to_indices[label2])
 
         data2 = self.file_list[idx2]
@@ -360,17 +382,19 @@ class ContrastiveDatasetDUAL(Dataset):
     # in case there are many cell types (e.g., > 100)
     def __init__(self, scDataset):
         self.file_list = scDataset.file_list
+        self.CELL2CAT = scDataset.CELL2CAT
+        self.n_vars = scDataset.n_vars
 
     def __getitem__(self, index):
         file1 = self.file_list[index]
-        data1 = torch.Tensor(load_npz(file1 + "_norm.npz").toarray())
-        label1 = pickle.load(open(file1 + ".pkl", "rb"))["cell_type"]
+        count1 = torch.Tensor(load_npz(file1 + ".npz").toarray())
+        label1 = torch.Tensor(pickle.load(open(file1 + ".pkl", "rb"))["cell_type"])
 
         file2 = np.random.choice(self.file_list)
-        data2 = torch.Tensor(load_npz(file2 + "_norm.npz").toarray())
-        label2 = pickle.load(open(file2 + ".pkl", "rb"))["cell_type"]
+        count2 = torch.Tensor(load_npz(file2 + ".npz").toarray())
+        label2 = torch.Tensor(pickle.load(open(file2 + ".pkl", "rb"))["cell_type"])
 
-        return data1, label1, data2, label2
+        return {"b1": count1, "l1": label1, "b2": count2, "l2": label2}
 
     def __len__(self):
         return len(self.file_list)

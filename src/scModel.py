@@ -221,9 +221,7 @@ if __name__ == "__main__":
         def ArgParser():
             parser = argparse.ArgumentParser()
             parser.add_argument("--leak_dim", type=int, default=16)
-            parser.add_argument(
-                "--mlp_size", type=int, nargs="+", default=[128, 128]
-            )  # default=[128, 128, 128, 128]
+            parser.add_argument("--mlp_size", type=int, nargs="+", default=[128, 128])  # default=[128, 128, 128, 128]
             return parser.parse_args()
 
         args = ArgParser()
@@ -273,7 +271,4 @@ if __name__ == "__main__":
                             cell_type=batch_["cell_type"],
                         )
                     )
-                print(
-                    "Epoch: %2d, Test Acc: %.2f, EST: %.1f Mins"
-                    % (epoch, 100 * uh.mean_(acc_), (time.time() - start) // 60)
-                )
+                print("Epoch: %2d, Test Acc: %.2f, EST: %.1f Mins" % (epoch, 100 * uh.mean_(acc_), (time.time() - start) // 60))

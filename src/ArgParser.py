@@ -15,8 +15,8 @@ def Parser_Trainer():
     parser.add_argument(
         "--mode",
         type=str,
-        default="vanilla",
-        choices=["vanilla", "mixup", "scl", "psl"],
+        default="mixup",
+        choices=["vanilla", "mixup", "scl", "triplet"],
     )
     parser.add_argument(
         "--dataset",
@@ -50,9 +50,7 @@ def Parser_Trainer():
     parser.add_argument("--mlp_size", type=int, nargs="+", default=[128, 128])
     parser.add_argument("--leakage", type=int, default=16)
     parser.add_argument("--dropout", type=bool, default=True)
-    parser.add_argument(
-        "--batch1d", type=str, default="Vanilla", choices=["Vanilla", "scVI"]
-    )
+    parser.add_argument("--batch1d", type=str, default="Vanilla", choices=["Vanilla", "scVI"])
 
     """ === Training HyperOpt === """
     parser.add_argument("--lr", type=float, default=0.001)

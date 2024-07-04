@@ -11,10 +11,10 @@ warnings.filterwarnings("ignore", category=ImplicitModificationWarning)
 
 SEED = 42
 MINCELLS = 256
-CUDA_DEVICE = "1"
+CUDA_DEVICE = "5"
 
 HOME_DIR = os.path.expanduser("~")
-PROJ_DIR = rf"{HOME_DIR}/G-scIB_dev"
+PROJ_DIR = rf"{HOME_DIR}/Islander"
 MODEL_DIR = rf"{PROJ_DIR}/models"
 META_DIR = rf"{PROJ_DIR}/meta"
 DATA_DIR = rf"{PROJ_DIR}/data"
@@ -51,10 +51,15 @@ DATA_RAW_ = {
 DATA_EMB_ = {
     "lung": rf"{DATA_DIR}/lung/emb.h5ad",
     "lung_hvg": rf"{DATA_DIR}/lung/emb_hvg.h5ad",
-    "lung_fetal_donor": rf"{PROJ_DIR}/data/lung_fetal_donor/emb.h5ad",
-    "lung_fetal_donor_hvg": rf"{PROJ_DIR}/data/lung_fetal_donor/emb_hvg.h5ad",
-    "lung_fetal_organoid": rf"{PROJ_DIR}/data/lung_fetal_organoid/emb.h5ad",
-    "lung_fetal_organoid_hvg": rf"{PROJ_DIR}/data/lung_fetal_organoid/emb_hvg.h5ad",
+    "lung_fetal_donor": rf"{DATA_DIR}/lung_fetal_donor/emb.h5ad",
+    # "lung_fetal_donor": rf"{DATA_DIR}/lung_fetal_donor/subset1.h5ad",
+    # "lung_fetal_donor": rf"{DATA_DIR}/lung_fetal_donor/subset1_fibro.h5ad",
+    # "lung_fetal_donor": rf"{DATA_DIR}/lung_fetal_donor/subset1_fibro_new.h5ad",
+    "lung_fetal_donor_fibro": rf"{DATA_DIR}/lung_fetal_donor/subset1_fibro_new.h5ad",
+    # "lung_fetal_donor": rf"{DATA_DIR}/lung_fetal_donor/subset2.h5ad",
+    "lung_fetal_donor_hvg": rf"{DATA_DIR}/lung_fetal_donor/emb_hvg.h5ad",
+    "lung_fetal_organoid": rf"{DATA_DIR}/lung_fetal_organoid/emb.h5ad",
+    "lung_fetal_organoid_hvg": rf"{DATA_DIR}/lung_fetal_organoid/emb_hvg.h5ad",
     "brain": rf"{DATA_DIR}/brain/emb.h5ad",
     "brain_hvg": rf"{DATA_DIR}/brain/emb_hvg.h5ad",
     "breast": rf"{DATA_DIR}/breast/emb.h5ad",
@@ -90,12 +95,8 @@ META_ = {
 
 CELL2CAT_ = {
     "lung": json.loads(open(rf"{META_DIR}/lung/cell2cat.json", "r").read()),
-    "lung_fetal_donor": json.loads(
-        open(rf"{META_DIR}/lung_fetal_donor/cell2cat.json", "r").read()
-    ),
-    "lung_fetal_organoid": json.loads(
-        open(rf"{META_DIR}/lung_fetal_organoid/cell2cat.json", "r").read()
-    ),
+    "lung_fetal_donor": json.loads(open(rf"{META_DIR}/lung_fetal_donor/cell2cat.json", "r").read()),
+    "lung_fetal_organoid": json.loads(open(rf"{META_DIR}/lung_fetal_organoid/cell2cat.json", "r").read()),
     "brain": json.loads(open(rf"{META_DIR}/brain/cell2cat.json", "r").read()),
     "breast": json.loads(open(rf"{META_DIR}/breast/cell2cat.json", "r").read()),
     "heart": json.loads(open(rf"{META_DIR}/heart/cell2cat.json", "r").read()),
@@ -108,12 +109,8 @@ CELL2CAT_ = {
 
 BATCH2CAT_ = {
     "lung": json.loads(open(rf"{META_DIR}/lung/batch2cat.json", "r").read()),
-    "lung_fetal_donor": json.loads(
-        open(rf"{META_DIR}/lung_fetal_donor/batch2cat.json", "r").read()
-    ),
-    "lung_fetal_organoid": json.loads(
-        open(rf"{META_DIR}/lung_fetal_organoid/batch2cat.json", "r").read()
-    ),
+    "lung_fetal_donor": json.loads(open(rf"{META_DIR}/lung_fetal_donor/batch2cat.json", "r").read()),
+    "lung_fetal_organoid": json.loads(open(rf"{META_DIR}/lung_fetal_organoid/batch2cat.json", "r").read()),
     "brain": json.loads(open(rf"{META_DIR}/brain/batch2cat.json", "r").read()),
     "breast": json.loads(open(rf"{META_DIR}/breast/batch2cat.json", "r").read()),
     "heart": json.loads(open(rf"{META_DIR}/heart/batch2cat.json", "r").read()),

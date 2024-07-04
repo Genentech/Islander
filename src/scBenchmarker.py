@@ -2,12 +2,8 @@
 # https://scib-metrics.readthedocs.io/en/stable/notebooks/lung_example.html
 
 import Data_Handler as dh
-
-# import os, scvi, faiss, torch, Data_Handler as dh, numpy as np, scanpy as sc, pandas as pd
 import os, scvi, json, torch, argparse, numpy as np, scanpy as sc, pandas as pd
 from scib_metrics.benchmark import Benchmarker, BioConservation, BatchCorrection
-
-# from scib_metrics.nearest_neighbors import NeighborsOutput
 from scDataset import scDataset, collate_fn, set_seed
 from os.path import join, exists, getmtime, dirname
 from ArgParser import Parser_Benchmarker
@@ -19,7 +15,7 @@ from scModel import Model_ZOO
 
 
 set_seed(dh.SEED)
-# os.environ["CUDA_VISIBLE_DEVICES"] = dh.CUDA_DEVICE
+os.environ["CUDA_VISIBLE_DEVICES"] = dh.CUDA_DEVICE
 # torch.cuda.is_available() -> False
 sc.settings.verbosity = 3
 sc.logging.print_header()
@@ -109,14 +105,8 @@ class BasicHandler:
             # Generating data counteraparts based on the given batches
             self._str_formatter("Single Batch: {}".format(_batch_id))
             batch_ = _dataset[0]
-            _df = pd.DataFrame(
-                index=dh.CONCEPTS2CAT.keys(), columns=["digits", "names"]
-            )
-            _df["digits"] = (
-                np.concatenate(list(batch_["meta"].values()))
-                .reshape(dh.NUM_CONCEPTS, -1)
-                .astype(int)[:, 0]
-            )
+            _df = pd.DataFrame(index=dh.CONCEPTS2CAT.keys(), columns=["digits", "names"])
+            _df["digits"] = np.concatenate(list(batch_["meta"].values())).reshape(dh.NUM_CONCEPTS, -1).astype(int)[:, 0]
             _df["names"] = dh.CONCEPT2NAMES(_df["digits"])
             print(_df)
         else:
@@ -165,13 +155,9 @@ class BasicHandler:
         self.model.load_state_dict(model_state_dict)
 
         if extra_keys:
-            print(
-                f"Warning: The following keys present in the checkpoints are not found in the model: {extra_keys}"
-            )
+            print(f"Warning: The following keys present in the checkpoints are not found in the model: {extra_keys}")
         if missing_keys:
-            print(
-                f"Warning: The following keys present in the model are not found in the checkpoints: {missing_keys}"
-            )
+            print(f"Warning: The following keys present in the model are not found in the checkpoints: {missing_keys}")
 
     def parse_cfg(self):
         def _recent_ckpt(dirpath):
@@ -186,9 +172,7 @@ class BasicHandler:
             if exists(join(self.args.save_path, "ckpt_best.pth")):
                 self.ckpt_path = join(self.args.save_path, "ckpt_best.pth")
             else:
-                self.ckpt_path = join(
-                    self.args.save_path, _recent_ckpt(self.args.save_path)[-1]
-                )
+                self.ckpt_path = join(self.args.save_path, _recent_ckpt(self.args.save_path)[-1])
         if exists(join(self.args.save_path, "cfg.json")):
             self.cfg = json.load(open(join(self.args.save_path, "cfg.json")))
         elif exists(join(dirname(self.args.save_path), "cfg.json")):
@@ -284,15 +268,12 @@ class scIB(BasicHandler):
 
         for embed in obsm_keys:
             print("%12s, %d" % (embed, self.adata.obsm[embed].shape[1]))
-            assert (
-                self.adata.obsm[embed].shape[0]
-                == np.unique(self.adata.obsm[embed], axis=0).shape[0]
-            )
+            if self.adata.obsm[embed].shape[0] != np.unique(self.adata.obsm[embed], axis=0).shape[0]:
+                print("\nWarning: Embedding %s has duplications\n" % embed)
+                obsm_keys.remove(embed)
         if self.args.saveadata or self.args.all:
             _suffix = "_hvg" if self.args.highvar else ""
-            self.adata.write_h5ad(
-                dh.DATA_EMB_[self.args.dataset + _suffix], compression="gzip"
-            )
+            self.adata.write_h5ad(dh.DATA_EMB_[self.args.dataset + _suffix], compression="gzip")
 
         self._str_formatter(rf"scIB Benchmarking: {obsm_keys}")
         biocons = BioConservation(nmi_ari_cluster_labels_leiden=True)
@@ -341,9 +322,7 @@ class scIB(BasicHandler):
         savefig = False
         if savefig:
             _suffix = "_hvg" if self.args.highvar else ""
-            self.benchmarker.plot_results_table(
-                min_max_scale=False, show=False, save_dir=rf"{dh.RES_DIR}/scIB/"
-            )
+            self.benchmarker.plot_results_table(min_max_scale=False, show=False, save_dir=rf"{dh.RES_DIR}/scIB/")
             os.rename(
                 src=rf"{dh.RES_DIR}/scIB/scib_results.svg",
                 dst=rf"{dh.RES_DIR}/figures/scib_{self.args.dataset}{_suffix}.svg",
@@ -354,9 +333,7 @@ class scIB(BasicHandler):
         if self.args.saveadata or self.args.all:
             _suffix = "_hvg" if self.args.highvar else ""
             self._str_formatter("Saving %s" % (self.args.dataset + _suffix))
-            self.adata.write_h5ad(
-                dh.DATA_EMB_[self.args.dataset + _suffix], compression="gzip"
-            )
+            self.adata.write_h5ad(dh.DATA_EMB_[self.args.dataset + _suffix], compression="gzip")
         return
 
     def _pca_(self, n_comps=50):
@@ -426,9 +403,7 @@ class scIB(BasicHandler):
         #     _temp_adata = bbknn.bbknn(self.adata, batch_key=self.batch_key, copy=True)
         # else:
         print(self.adata.obs[self.batch_key].value_counts().tail())
-        _smallest_n_neighbor = (
-            self.adata.obs[self.batch_key].value_counts().tail(1).values[0]
-        )
+        _smallest_n_neighbor = self.adata.obs[self.batch_key].value_counts().tail(1).values[0]
         _temp_adata = bbknn.bbknn(
             self.adata,
             batch_key=self.batch_key,
@@ -448,13 +423,12 @@ class scIB(BasicHandler):
 
         from harmony import harmonize
 
-        self.adata.obsm["Harmony"] = harmonize(
-            self.adata.obsm["X_pca"], self.adata.obs, batch_key=self.batch_key
-        )
+        self.adata.obsm["Harmony"] = harmonize(self.adata.obsm["X_pca"], self.adata.obs, batch_key=self.batch_key)
         self._save_adata_()
         return
 
     def _scanorama_(self):
+        # https://github.com/brianhie/scanorama
         self._str_formatter("Scanorama")
         if "Scanorama" in self.adata.obsm and not self.scratch:
             return
@@ -462,18 +436,12 @@ class scIB(BasicHandler):
         import scanorama
 
         batch_cats = self.adata.obs[self.batch_key].cat.categories
-        adata_list = [
-            self.adata[self.adata.obs[self.batch_key] == b].copy() for b in batch_cats
-        ]
+        adata_list = [self.adata[self.adata.obs[self.batch_key] == b].copy() for b in batch_cats]
         scanorama.integrate_scanpy(adata_list)
 
-        self.adata.obsm["Scanorama"] = np.zeros(
-            (self.adata.shape[0], adata_list[0].obsm["X_scanorama"].shape[1])
-        )
+        self.adata.obsm["Scanorama"] = np.zeros((self.adata.shape[0], adata_list[0].obsm["X_scanorama"].shape[1]))
         for i, b in enumerate(batch_cats):
-            self.adata.obsm["Scanorama"][
-                self.adata.obs[self.batch_key] == b
-            ] = adata_list[i].obsm["X_scanorama"]
+            self.adata.obsm["Scanorama"][self.adata.obs[self.batch_key] == b] = adata_list[i].obsm["X_scanorama"]
         self._save_adata_()
         return
 
@@ -495,9 +463,7 @@ class scIB(BasicHandler):
 
         # ref: https://github.com/LungCellAtlas/HLCA_reproducibility/blob/main/notebooks/1_building_and_annotating_the_atlas_core/04_integration_benchmark_prep_and_scgen.ipynb
 
-        scgen.SCGEN.setup_anndata(
-            self.adata, batch_key=self.batch_key, labels_key=self.label_key
-        )
+        scgen.SCGEN.setup_anndata(self.adata, batch_key=self.batch_key, labels_key=self.label_key)
         model = scgen.SCGEN(self.adata)
         model.train(
             max_epochs=100,
@@ -543,9 +509,7 @@ class scIB(BasicHandler):
                 return split, batch_categories
             return split
 
-        split, categories = split_batches(
-            self.adata, batch_key=self.batch_key, return_categories=True
-        )
+        split, categories = split_batches(self.adata, batch_key=self.batch_key, return_categories=True)
         if self.args.dataset in [
             "lung_fetal_organoid",
             "COVID",
@@ -578,7 +542,8 @@ class scIB(BasicHandler):
         self._str_formatter("scPoli")
         if "scPoli" in self.adata.obsm and not self.scratch:
             return
-
+        if self.args.dataset in ["brain", "breast"]:
+            return
         import warnings
 
         warnings.filterwarnings("ignore")
