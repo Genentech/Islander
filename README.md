@@ -1,9 +1,11 @@
 ## Islander
-This repository is the official implementation of paper: **“Metric Mirages in Cell Embeddings”**. 
+This repository is the official implementation of the paper **Metric Mirages in Cell Embeddings**. 
 
 Please contact wang.hanchen@gene.com or hanchenw@cs.stanford.edu if you have any questions.
 
 
+
+![teaser](teaser.png)
 
 
 
@@ -21,8 +23,15 @@ Please contact wang.hanchen@gene.com or hanchenw@cs.stanford.edu if you have any
 }
 ```
 
+
+
+---
+
+
+
 ### Usage
-We include scripts to reproduce the results in the <a href="scripts/">scripts</a> folder. You can also follow the step-by-step instructions:
+
+We include scripts to reproduce the results in the <a href="scripts/">scripts</a> folder. You can also follow the step-by-step instructions below:
 
 **Step 0**: Set up the environment.
 
@@ -30,7 +39,10 @@ We include scripts to reproduce the results in the <a href="scripts/">scripts</a
 conda env create -f env.yml
 ```
 
-**Step 1**: Data preprocessing. First data can be downloaded from:
+
+
+**Step 1**: Data preprocessing. First, data can be downloaded from:
+
 | Brain | Breast | COVID | Eye | FetalGut | FetalLung | Heart | Lung | Pancreas | Skin | 
 |-------|--------|-------|-----|----------|-----------|-------|------|----------|------|
 | [Paper](https://www.science.org/doi/10.1126/science.add7046) | [Paper](https://www.nature.com/articles/s41586-023-06252-9) | [Paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7402042/) | [Paper](https://cellxgene.cziscience.com/collections/348da6dc-5bf6-435d-adc5-37747b9ae38a) | [Paper](https://www.sciencedirect.com/science/article/pii/S1534580720308868?via%3Dihub) | [Paper](https://linkinghub.elsevier.com/retrieve/pii/S0092867422014155) | [Paper](https://www.nature.com/articles/s44161-022-00183-w) | [Paper](https://www.nature.com/articles/s41591-023-02327-2) | [Paper](https://www.nature.com/articles/s41592-021-01336-8) | [Paper](https://www.nature.com/articles/s42003-020-0922-4) |
@@ -65,9 +77,7 @@ The top 1000 highly variable genes are selected through:
 sc.pp.highly_variable_genes(adata, subset=True, flavor="seurat_v3", n_top_genes=1000)
 ```
 
-
-
-Then metadata is saved as json files. See the minimal example: [jupyter_nb/Process_Breast.ipynb](jupyter_nb/Process_Breast.ipynb).
+Then metadata is saved as JSON files. See the minimal example: [jupyter_nb/Process_Breast.ipynb](jupyter_nb/Process_Breast.ipynb).
 
 
 
@@ -115,7 +125,7 @@ done
 
 
 
-We have also provided variants of Islander, which make use of different forms of semi-supervsied learning loss (triplet and supervised contrastive loss), see [scripts/_Islander_SCL.sh](scripts/_Islander_SCL.sh) and [scripts/_Islander_Triplet.sh](scripts/_Islander_Triplet.sh) for details.
+We have also provided variants of Islander, which make use of different forms of semi-supervised learning loss (triplet and supervised contrastive loss). See [scripts/_Islander_SCL.sh](scripts/_Islander_SCL.sh) and [scripts/_Islander_Triplet.sh](scripts/_Islander_Triplet.sh) for details.
 
 
 
@@ -149,7 +159,7 @@ export CUDA_VISIBLE_DEVICES=2 & python scBenchmarker.py \
 
 **Step 4**: Run and benchmark foundation models with scIB
 
-Please refer to authors's original tutorials ([scGPT](https://github.com/bowang-lab/scGPT/tree/main/tutorials/zero-shot), [Geneformer](https://huggingface.co/ctheodoris/Geneformer/tree/main/examples), [scFoundation](https://github.com/biomap-research/scFoundation/tree/main/model), [UCE](https://github.com/snap-stanford/UCE)) for extracting zero-shot and fine-tuned cell embeddings. We provide minimal examples notebook as in [jupyter_nb/Geneformer_Skin.ipynb](jupyter_nb/Geneformer_Skin.ipynb) to extract zero-shot cell embeddings for the skin dataset using pre-trained Geneformer. And to evaluate such embedding with scIB:
+Please refer to the authors' original tutorials ([scGPT](https://github.com/bowang-lab/scGPT/tree/main/tutorials/zero-shot), [Geneformer](https://huggingface.co/ctheodoris/Geneformer/tree/main/examples), [scFoundation](https://github.com/biomap-research/scFoundation/tree/main/model), [UCE](https://github.com/snap-stanford/UCE)) for extracting zero-shot and fine-tuned cell embeddings. We provide a minimal example notebook [jupyter_nb/Geneformer_Skin.ipynb](jupyter_nb/Geneformer_Skin.ipynb) to extract zero-shot cell embeddings for the skin dataset using pre-trained Geneformer. To evaluate such embedding with scIB:
 
 ```bash
 cd ${HOME}/Islander/src
@@ -181,7 +191,7 @@ for DATASET in "${DATASET_List[@]}"; do
 done
 ```
 
-The output files of scGraph has the following format:
+The output files of scGraph have the following format:
 
 |             | Rank-Count | Corr-Count | Rank-PCA | Corr-PCA | Corr-Weights |
 | :---------- | ---------: | ---------: | -------: | -------: | -----------: |
@@ -190,17 +200,19 @@ The output files of scGraph has the following format:
 | Harmony_hvg |      0.648 |      0.934 |    0.709 |    0.941 |        0.724 |
 | Islander    |      0.398 |      0.941 |    0.292 |    0.847 |        0.160 |
 
-
-
 We report the scores of **Rank-PCA** and **Corr-Weights** in the paper.
 
-**We'll integrate it and much more metrics into the next version of scIB, please stay tuned!**
+**We'll integrate scGraph and many more other metrics into the next version of scIB, please stay tuned!**
 
 
 
-**Step x**: Case study scGraph vs scIB on fibroblast cells from human fetal lung
+---
 
-The fiborblast subset is selected through:
+
+
+**Step x**: Case study scGraph vs scIB on fibroblast cells from the human fetal lung
+
+The fibroblast subset is selected through:
 
 ```python
 adata = sc.read_h5ad(dh.DATA_EMB_["lung_fetal_donor"])
