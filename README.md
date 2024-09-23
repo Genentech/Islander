@@ -1,5 +1,5 @@
 ## Islander
-This repository is the official implementation of the paper **Metric Mirages in Cell Embeddings**. 
+This repository is the official implementation for the paper **Metric Mirages in Cell Embeddings**. 
 
 Please contact wang.hanchen@gene.com or hanchenw@cs.stanford.edu if you have any questions.
 
@@ -31,7 +31,7 @@ Please contact wang.hanchen@gene.com or hanchenw@cs.stanford.edu if you have any
 
 ### Usage
 
-We include scripts to reproduce the results in the <a href="scripts/">scripts</a> folder. You can also follow the step-by-step instructions below:
+We include scripts and logs to reproduce the results in the <a href="scripts/">scripts</a> folder. You can also follow the step-by-step instructions below:
 
 **Step 0**: Set up the environment.
 
@@ -39,16 +39,18 @@ We include scripts to reproduce the results in the <a href="scripts/">scripts</a
 conda env create -f env.yml
 ```
 
+**NOTE**: The default setup uses GPU-compiled packages (for PyTorch, JAXlib, *etc*.). Please adjust them according to your local CUDA version *or* switch to the CPU version as needed. The calculation of scGraph scores does not require GPU access.
 
-
-**Step 1**: Data preprocessing. First, data can be downloaded from:
+**Step 1**: Preprocessing. Data can be downloaded from:
 
 | Brain                                                        | Breast                                                       | COVID                                                        | Eye                                                          | FetalGut                                                     | FetalLung                                                    | Heart                                                        | Lung                                                         | Pancreas                                                     | Skin                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | [Paper](https://www.science.org/doi/10.1126/science.add7046) | [Paper](https://www.nature.com/articles/s41586-023-06252-9)  | [Paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7402042/) | [Paper](https://www.sciencedirect.com/science/article/pii/S2666979X22001069?via%3Dihub) | [Paper](https://www.sciencedirect.com/science/article/pii/S1534580720308868?via%3Dihub) | [Paper](https://linkinghub.elsevier.com/retrieve/pii/S0092867422014155) | [Paper](https://www.nature.com/articles/s44161-022-00183-w)  | [Paper](https://www.nature.com/articles/s41591-023-02327-2)  | [Paper](https://www.nature.com/articles/s41592-021-01336-8)  | [Paper](https://www.nature.com/articles/s42003-020-0922-4)   |
 | [Data](https://cellxgene.cziscience.com/collections/283d65eb-dd53-496d-adb7-7570c7caa443) | [Data](https://cellxgene.cziscience.com/collections/4195ab4c-20bd-4cd3-8b3d-65601277e731) | [Data](https://atlas.fredhutch.org/fredhutch/covid/)         | [Data](https://cellxgene.cziscience.com/collections/348da6dc-5bf6-435d-adc5-37747b9ae38a) | [Data](https://cellxgene.cziscience.com/collections/17481d16-ee44-49e5-bcf0-28c0780d8c4a) | [Data](https://cellxgene.cziscience.com/collections/2d2e2acd-dade-489f-a2da-6c11aa654028) | [Data](https://cellxgene.cziscience.com/collections/43b45a20-a969-49ac-a8e8-8c84b211bd01) | [Data](https://cellxgene.cziscience.com/collections/6f6d381a-7701-4781-935c-db10d30de293) | [Data](https://figshare.com/articles/dataset/Benchmarking_atlas-level_data_integration_in_single-cell_genomics_-_integration_task_datasets_Immune_and_pancreas_/12420968?file=24539828) | [Data](https://cellxgene.cziscience.com/collections/c353707f-09a4-4f12-92a0-cb741e57e5f0) |
 
-We then applied quality control to each dataset. Specifically, we filtered out cell profiles with fewer than 1,000 reads or fewer than 500 detected genes. Genes present in fewer than five cells were also excluded. Normalization was performed using Scanpy, scaling each cell's read counts to a total of 10,000 and subsequently applying a log1p transformation:
+
+
+We applied quality control to each dataset by filtering out cell profiles with fewer than 1,000 reads or fewer than 500 detected genes. Genes present in fewer than five cells were also excluded. Normalization was performed using Scanpy, where each cell’s read counts were scaled to a total of 10,000, followed by a log1p transformation:
 
 ```python
 # download via "wget -O data/breast/local.h5ad https://datasets.cellxgene.cziscience.com/b8b5be07-061b-4390-af0a-f9ced877a068.h5ad"
@@ -77,7 +79,7 @@ The top 1000 highly variable genes are selected through:
 sc.pp.highly_variable_genes(adata, subset=True, flavor="seurat_v3", n_top_genes=1000)
 ```
 
-Then metadata is saved as JSON files. See the minimal example: [jupyter_nb/Process_Breast.ipynb](jupyter_nb/Process_Breast.ipynb).
+Then metadata is saved as JSON files. See the minimal example: [Process_Breast.ipynb](jupyter_nb/Process_Breast.ipynb).
 
 
 
@@ -157,9 +159,9 @@ export CUDA_VISIBLE_DEVICES=2 & python scBenchmarker.py \
 
 
 
-**Step 4**: Run and benchmark foundation models with scIB
+**Step 4**: Run and benchmark foundation models
 
-Please refer to the authors' original tutorials ([scGPT](https://github.com/bowang-lab/scGPT/tree/main/tutorials/zero-shot), [Geneformer](https://huggingface.co/ctheodoris/Geneformer/tree/main/examples), [scFoundation](https://github.com/biomap-research/scFoundation/tree/main/model), [UCE](https://github.com/snap-stanford/UCE)) for extracting zero-shot and fine-tuned cell embeddings. We provide a minimal example notebook [jupyter_nb/Geneformer_Skin.ipynb](jupyter_nb/Geneformer_Skin.ipynb) to extract zero-shot cell embeddings for the skin dataset using pre-trained Geneformer. To evaluate such embedding with scIB:
+Please refer to the authors' original tutorials ([scGPT](https://github.com/bowang-lab/scGPT/tree/main/tutorials/zero-shot), [Geneformer](https://huggingface.co/ctheodoris/Geneformer/tree/main/examples), [scFoundation](https://github.com/biomap-research/scFoundation/tree/main/model), [UCE](https://github.com/snap-stanford/UCE)) for extracting zero-shot and fine-tuned cell embeddings. We provide a minimal example notebook [_nb/Geneformer_Skin.ipynb](jupyter_nb/Geneformer_Skin.ipynb) to extract zero-shot cell embeddings for the skin dataset using pre-trained Geneformer. To evaluate such embedding with scIB:
 
 ```bash
 cd ${HOME}/Islander/src
@@ -177,53 +179,92 @@ python scBenchmarker.py \
 
 
 
-**Step 5**: Benchmark with scGraph
+**Step 5**: Benchmark with scGraph (can be replaced on customized AnnData file)
 
 ```bash
-cd ${HOME}/Islander_dev/src
+cd ${HOME}/Islander/src
 
-export DATASET_List=("skin" "lung" "lung_fetal_donor" "lung_fetal_organoid" \
-    "brain" "breast" "heart" "eye" "gut_fetal" "skin" "COVID" "pancreas")
-
-for DATASET in "${DATASET_List[@]}"; do
-    echo "_${DATASET}_"
-    python scGraph.py ${DATASET} ;
-done
+python scGraph.py \
+    --adata_path ${HOME}/Islander/data/lung/emb.h5ad \
+    --batch_key sample \
+    --label_key cell_type \
+    --savename ${HOME}/lung_scGraph;
 ```
 
-The output files of scGraph have the following format:
+The output file is in the format **Corr-Weights**, reported as scGraph scores in the paper. It is based on weighted rank correlation, where the weights are inversely proportional to the inter-cluster centroid distances. **Corr-PCA** represents the rank correlation using equal weights. **Rank-PCA** represents rank differences.
 
-|             | Rank-Count | Corr-Count | Rank-PCA | Corr-PCA | Corr-Weights |
-| :---------- | ---------: | ---------: | -------: | -------: | -----------: |
-| Geneformer  |      0.792 |      0.863 |    0.610 |    0.799 |        0.498 |
-| Harmony     |      0.738 |      0.963 |    0.670 |    0.924 |        0.678 |
-| Harmony_hvg |      0.648 |      0.934 |    0.709 |    0.941 |        0.724 |
-| Islander    |      0.398 |      0.941 |    0.292 |    0.847 |        0.160 |
-
-We report the scores of **Rank-PCA** and **Corr-Weights** in the paper.
-
-**We'll integrate scGraph and many more other metrics into the next version of scIB, please stay tuned!**
+|             | Rank-PCA | Corr-PCA | Corr-Weights |
+| :---------- | -------: | -------: | -----------: |
+| Geneformer  |    0.610 |    0.799 |        0.498 |
+| Harmony     |    0.670 |    0.924 |        0.678 |
+| Harmony_hvg |    0.709 |    0.941 |        0.724 |
+| Islander    |    0.292 |    0.847 |        0.160 |
 
 
+
+**Parameter Settings in scGraph**:
+
+scGraph uses PCA for each cell type within each batch to represent cluster-cluster relationships. Batches with fewer than 100 cells or cell types with fewer than 10 cells are excluded. PCA is calculated on the 1,000 highly variable genes, after removing 10% of the cells (5% from each extreme).
+
+All the numerical values mentioned above are adjustable. For further details, please refer to `scGraph.py`.
 
 ---
 
 
 
-**Step x**: Case study scGraph vs scIB on fibroblast cells from the human fetal lung
+**Step X**: Case study scGraph vs scIB on fibroblast cells from the human fetal lung
 
-The fibroblast subset is selected through:
+Please see [Fibroblast_Case.ipynb](jupyter_nb/Fibroblast_Case.ipynb) to reproduce the results reported in the paper.
 
-```python
-adata = sc.read_h5ad(dh.DATA_EMB_["lung_fetal_donor"])
-_subset = adata[["fibro" in _ct for _ct in adata.obs["new_celltype"]]]
 
-# Then repeat steps 2-4 above.
+
+### File Organization
+
+```
+├── LICENSE.txt
+├── README.md
+├── data
+├── env.yml  # for GPU environments
+├── jupyter_nb
+│   ├── Fibroblast_Case.ipynb
+│   ├── Geneformer_Skin.ipynb
+│   └── Process_Breast.ipynb
+├── meta
+│   ├── COVID
+│   │   ├── batch2cat.json
+│   │   └── cell2cat.json
+│   ├── ...
+├── res
+│   └── scGraph
+│   └── scIB
+├── scripts
+│   ├── Lung_Mixup.log 
+│   ├── Lung_scGraph.log
+│   ├── _Islander_MixUp.sh
+│   ├── _Islander_SCL.sh
+│   ├── _Islander_Triplet.sh
+│   ├── _download_data.sh
+│   ├── _scBenchmark.sh
+│   ├── _scGraph.sh
+│   ├── _scIB_Geneformer.sh
+│   └── _scIB_Islander.sh  # scib benchmark on cell islands embeddings
+├── src
+│   ├── ArgParser.py
+│   ├── Data_Handler.py
+│   ├── Utils_Handler.py
+│   ├── Vis_Handler.py
+│   ├── __init__.py
+│   ├── scBenchmarker.py
+│   ├── scDataset.py
+│   ├── scFinetuner.py
+│   ├── scGraph.py
+│   ├── scLoss.py
+│   ├── scModel.py
+│   └── scTrain.py
+└── teaser.png
 ```
 
 
-
-Have fun exploring!!
 
 
 
