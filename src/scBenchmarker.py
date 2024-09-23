@@ -199,12 +199,18 @@ class scIB(BasicHandler):
         self._load_adata_()
 
     def _load_adata_(self):
-        _suffix = "_hvg" if self.args.highvar else ""
-        assert not self.args.use_raw, "use_raw is not supported"
-        self.adata = sc.read(dh.DATA_EMB_[self.args.dataset + _suffix])
-        #
-        self.batch_key = dh.META_[self.args.dataset]["batch"]
-        self.label_key = dh.META_[self.args.dataset]["celltype"]
+        
+        if not self.args.customized_data:
+            _suffix = "_hvg" if self.args.highvar else ""
+            assert not self.args.use_raw, "use_raw is not supported"
+            self.adata = sc.read(dh.DATA_EMB_[self.args.dataset + _suffix])
+            #
+            self.batch_key = dh.META_[self.args.dataset]["batch"]
+            self.label_key = dh.META_[self.args.dataset]["celltype"]
+        else:
+            self.adata = sc.read(self.args.dataset)
+            self.batch_key = self.args.batch_key
+            self.label_key = self.args.label_key
         return
 
     def _str_formatter(self, message):
@@ -271,9 +277,7 @@ class scIB(BasicHandler):
             if self.adata.obsm[embed].shape[0] != np.unique(self.adata.obsm[embed], axis=0).shape[0]:
                 print("\nWarning: Embedding %s has duplications\n" % embed)
                 obsm_keys.remove(embed)
-        if self.args.saveadata or self.args.all:
-            _suffix = "_hvg" if self.args.highvar else ""
-            self.adata.write_h5ad(dh.DATA_EMB_[self.args.dataset + _suffix], compression="gzip")
+        self._save_adata_()
 
         self._str_formatter(rf"scIB Benchmarking: {obsm_keys}")
         biocons = BioConservation(nmi_ari_cluster_labels_leiden=True)
@@ -331,15 +335,19 @@ class scIB(BasicHandler):
 
     def _save_adata_(self):
         if self.args.saveadata or self.args.all:
-            _suffix = "_hvg" if self.args.highvar else ""
-            self._str_formatter("Saving %s" % (self.args.dataset + _suffix))
-            self.adata.write_h5ad(dh.DATA_EMB_[self.args.dataset + _suffix], compression="gzip")
+            if not self.args.customized_data:
+                _suffix = "_hvg" if self.args.highvar else ""
+                self._str_formatter("Saving %s" % (self.args.dataset + _suffix))
+                self.adata.write_h5ad(dh.DATA_EMB_[self.args.dataset + _suffix], compression="gzip")
+            else:
+                self._str_formatter("Saving %s" % self.args.dataset)
+                self.adata.write_h5ad(self.args.dataset, compression="gzip")
         return
 
     def _pca_(self, n_comps=50):
         self._str_formatter("PCA")
-        if "X_pca" in self.adata.obsm and not self.scratch:
-            return
+        # if "X_pca" in self.adata.obsm and not self.scratch:
+        #     return
         sc.pp.pca(self.adata, n_comps=n_comps)
         self._save_adata_()
         return
@@ -423,7 +431,12 @@ class scIB(BasicHandler):
 
         from harmony import harmonize
 
-        self.adata.obsm["Harmony"] = harmonize(self.adata.obsm["X_pca"], self.adata.obs, batch_key=self.batch_key)
+        self.adata.obsm["Harmony"] = harmonize(
+            self.adata.obsm["X_pca"], 
+            self.adata.obs, 
+            batch_key=self.batch_key, 
+            use_gpu=True
+            )
         self._save_adata_()
         return
 
@@ -450,7 +463,8 @@ class scIB(BasicHandler):
         if "scgen_pca" in self.adata.obsm and not self.scratch:
             return
 
-        if not self.args.highvar:
+        # if not self.args.highvar:
+        if self.adata.shape[0] > 1e5:
             return
 
         import scgen
@@ -491,7 +505,8 @@ class scIB(BasicHandler):
         if "fastMNN_pca" in self.adata.obsm and not self.scratch:
             return
 
-        if not self.args.highvar:
+        # if not self.args.highvar:
+        if self.adata.shape[0] > 1e5:
             return
 
         import mnnpy
@@ -573,10 +588,11 @@ class scIB(BasicHandler):
             eta=5,
         )
         self.adata.obsm["scPoli"] = scpoli_model.get_latent(self.adata, mean=True)
+        self._save_adata_()
         return
 
     def _islander_(self):
-        from tqdm import tqdm
+        from tqdm.auto import tqdm
 
         scDataset, self.scDataLoader = self._scDataloader()
         # self.cell2cat = scData_Train.CELL2CAT
@@ -595,7 +611,10 @@ class scIB(BasicHandler):
 
         emb_cells = np.concatenate(emb_cells, axis=0)
         self.adata.obsm["Islander"] = emb_cells
+        self._save_adata_()
         return
+
+# TODO: add scGraph
 
 
 if __name__ == "__main__":

@@ -5,8 +5,10 @@ export EPOCH=10
 export LEAKAGE=16
 export MODE="mixup"
 export MLPSIZE="128 128"
-export DATASET_List=("lung" "lung_fetal_donor" "lung_fetal_organoid" \
-    "brain" "breast" "heart" "eye" "gut_fetal" "skin" "COVID" "pancreas")
+# export DATASET_List=("lung" "lung_fetal_donor" "lung_fetal_organoid" \
+#     "brain" "breast" "heart" "eye" "gut_fetal" "skin" "COVID" "pancreas")
+
+export DATASET_List=("lung")
 
 for DATASET in "${DATASET_List[@]}"; do
 export PROJECT="_${DATASET}_"

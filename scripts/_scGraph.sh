@@ -1,11 +1,11 @@
+export DATASET="lung"
+
 cd ${HOME}/Islander/src
+mkdir -p ${HOME}/Islander/res/scGraph
 
-export DATASET_List=("lung" "lung_fetal_donor" "lung_fetal_organoid" \
-    "brain" "breast" "heart" "eye" "gut_fetal" "skin" "COVID" "pancreas")
-
-export DATASET_List=("pancreas")
-
-for DATASET in "${DATASET_List[@]}"; do
-    echo "_${DATASET}_"
-    python scGraph.py ${DATASET} ;
-done
+echo "_${DATASET}_"
+python scGraph.py \
+    --adata_path ${HOME}/Islander/data/${DATASET}/emb.h5ad \
+    --batch_key sample \
+    --label_key cell_type \
+    --savename ${HOME}/Islander/res/scGraph/${DATASET};

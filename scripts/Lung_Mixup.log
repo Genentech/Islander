@@ -1,0 +1,62 @@
+DATASET-lung_MODE-mixup-ONLY_LEAK-16_MLP-128 128
+wandb: Currently logged in as: hanchen. Use `wandb login --relogin` to force relogin
+wandb: wandb version 0.18.1 is available!  To upgrade, please run:
+wandb:  $ pip install wandb --upgrade
+wandb: Tracking run with wandb version 0.17.0
+wandb: Run data is saved locally in /gpfs/scratchfs01/site/u/wangh256/Islander/src/wandb/run-20240923_122103-3bynd09h
+wandb: Run `wandb offline` to turn off syncing.
+wandb: Syncing run MODE-mixup-ONLY_LEAK-16_MLP-128 128
+wandb: ⭐️ View project at https://genentech.wandb.io/hanchen/_lung_
+wandb: 🚀 View run at https://genentech.wandb.io/hanchen/_lung_/runs/3bynd09h
+
+
+
+=============================================================================
+DATASET: lung
+BATCH: sample, LABEL: cell_type
+Load 28024 Genes & 542643 Cells.
+=============================================================================
+
+
+...Loading from Pre Saved, Training Split...
+...Loading from Pre Saved, Testing Split...
+# Genes: 28024
+# Cells: 488192 (Training), 54528 (Testing)
+
+============================  Model architecture  ===========================
+Leak dim: 16
+Dropout: True
+MLP size: [128, 16, 128]
+Batchnorm: True , momentum: 0.1 , eps: 1e-05
+=============================================================================
+LR: 0.000976  Epoch:  0,  Test Loss: 0.17,  Train Loss: 1.31,  Test Acc: 94.93,  Time: 0.00 Mins
+LR: 0.000905  Epoch:  1,  Test Loss: 0.17,  Train Loss: 1.04,  Test Acc: 94.95,  Time: 0.00 Mins
+LR: 0.000794  Epoch:  2,  Test Loss: 0.17,  Train Loss: 0.99,  Test Acc: 94.91,  Time: 1.00 Mins
+LR: 0.000655  Epoch:  3,  Test Loss: 0.17,  Train Loss: 0.95,  Test Acc: 95.02,  Time: 1.00 Mins
+LR: 0.000500  Epoch:  4,  Test Loss: 0.17,  Train Loss: 0.92,  Test Acc: 95.05,  Time: 2.00 Mins
+LR: 0.000345  Epoch:  5,  Test Loss: 0.18,  Train Loss: 0.89,  Test Acc: 95.05,  Time: 2.00 Mins
+LR: 0.000206  Epoch:  6,  Test Loss: 0.18,  Train Loss: 0.89,  Test Acc: 95.04,  Time: 3.00 Mins
+LR: 0.000095  Epoch:  7,  Test Loss: 0.18,  Train Loss: 0.89,  Test Acc: 95.08,  Time: 3.00 Mins
+LR: 0.000024  Epoch:  8,  Test Loss: 0.18,  Train Loss: 0.89,  Test Acc: 95.00,  Time: 4.00 Mins
+LR: 0.000000  Epoch:  9,  Test Loss: 0.18,  Train Loss: 0.88,  Test Acc: 95.14,  Time: 4.00 Mins
+wandb: - 0.046 MB of 0.046 MB uploadedwandb: \ 0.046 MB of 0.067 MB uploadedwandb: 
+wandb: Run history:
+wandb:             LR █▇▇▆▅▃▂▂▁▁
+wandb:       Test Acc ▂▂▁▄▅▅▅▆▄█
+wandb:      Test Loss ▁▂▆▂▂▇▆██▇
+wandb:  Test Rec Loss ▂█▃▅▃▄▁▃▄▁
+wandb:     Train Loss █▄▃▂▂▁▁▁▁▁
+wandb: Train Rec Loss ▁█▆▅▄▁▂▂▁▂
+wandb: 
+wandb: Run summary:
+wandb:             LR 0.0
+wandb:       Test Acc 95.13747
+wandb:      Test Loss 0.17661
+wandb:  Test Rec Loss 0.20821
+wandb:     Train Loss 0.87541
+wandb: Train Rec Loss 0.20818
+wandb: 
+wandb: 🚀 View run MODE-mixup-ONLY_LEAK-16_MLP-128 128 at: https://genentech.wandb.io/hanchen/_lung_/runs/3bynd09h
+wandb: ⭐️ View project at: https://genentech.wandb.io/hanchen/_lung_
+wandb: Synced 7 W&B file(s), 0 media file(s), 0 artifact file(s) and 1 other file(s)
+wandb: Find logs at: ./wandb/run-20240923_122103-3bynd09h/logs

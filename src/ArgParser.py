@@ -77,37 +77,20 @@ def Parser_Trainer():
     return args
 
 
-MODEL_DIR = rf"{dh.MODEL_DIR}/_lung_"
-B_PATH = rf"{MODEL_DIR}/MODE-mixup_LEAK-16_MLP-128 128"
-
-
 def Parser_Benchmarker():
     parser = argparse.ArgumentParser(description="Parser for scBenchmarker")
 
     parser.add_argument("--gpu", type=str, default="0")
-    parser.add_argument("--save_path", type=str, default=B_PATH)
+    parser.add_argument("--save_path", type=str, default=rf"{dh.MODEL_DIR}/_minimal_")
     parser.add_argument("--batch_id", type=str, nargs="+", default=None)
-    parser.add_argument(
-        "--dataset",
-        type=str,
-        default="lung",
-        choices=[
-            "lung",
-            "lung_fetal_donor",
-            "lung_fetal_organoid",
-            "brain",
-            "breast",
-            "heart",
-            "eye",
-            "gut_fetal",
-            "skin",
-            "COVID",
-            "pancreas",
-        ],
-    )
+    parser.add_argument("--dataset", type=str)
     parser.add_argument("--highvar", action="store_true")
-    parser.add_argument("--highvar_n", type=int, default=2000)
+    parser.add_argument("--highvar_n", type=int, default=1000)
     parser.add_argument("--savecsv", type=str, default=None)
+
+    parser.add_argument("--customized_data", action="store_true")
+    parser.add_argument("--batch_key", type=str)
+    parser.add_argument("--label_key", type=str)
 
     # === Integration Baselines ===
     parser.add_argument("--all", action="store_true")
