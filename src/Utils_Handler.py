@@ -22,7 +22,7 @@ def norm2count(rec_):
 
 def preprocess(adata, top_n_cells=100, min_cells=5, min_genes=500, min_counts=1000):
     # Sanity Check
-    subset = adata.X[:, :top_n_cells].toarray()
+    subset = adata.X[:top_n_cells, :].toarray()
     non_negative = np.all(subset >= 0)
     integer_values = np.all(subset.astype(int) == subset)
     assert non_negative and integer_values
