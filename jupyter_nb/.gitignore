@@ -1,3 +1,4 @@
 \[Tutorial\]*.ipynb
 _deprecated
+.ipynb_checkpoints/
 _temp*
