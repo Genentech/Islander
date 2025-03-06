@@ -212,7 +212,7 @@ All the numerical values mentioned above are adjustable. For further details, pl
 
 
 
-**Step X**: Case study scGraph vs scIB on fibroblast cells from the human fetal lung
+**Case study**:  scGraph vs scIB on fibroblast cells from the human fetal lung
 
 Please see [Fibroblast_Case.ipynb](jupyter_nb/Fibroblast_Case.ipynb) to reproduce the results reported in the paper.
 
@@ -266,5 +266,52 @@ Please see [Fibroblast_Case.ipynb](jupyter_nb/Fibroblast_Case.ipynb) to reproduc
 
 
 
+### Stand-alone scGraph package for evaluations
 
+We also provided a standalone [scgraph](https://pypi.org/project/scgraph-eval/) python package, that can be installed via:
 
+```
+# conda create -n scgraph python=3.10 # to create another conda environment if necessary
+pip install scgraph-eval
+```
+
+#### Python
+
+```python3
+from scgraph import scGraph
+
+# Initialize the graph analyzer
+scgraph = scGraph(
+    adata_path="path/to/your/data.h5ad",   # Path to AnnData object
+    batch_key="batch",                     # Column name for batch information
+    label_key="cell_type",                 # Column name for cell type labels
+    trim_rate=0.05,                        # Trim rate for robust mean calculation
+    thres_batch=100,                       # Minimum number of cells per batch
+    thres_celltype=10,                     # Minimum number of cells per cell type
+    only_umap=True,                        # Only evaluate 2D embeddings (mostly umaps)
+)
+
+# Run the analysis, return a pandas dataframe
+results = scgraph.main()
+
+# Save the results
+results.to_csv("embedding_evaluation_results.csv")
+```
+
+#### Command line
+
+```bash
+scgraph --adata_path path/to/data.h5ad --batch_key batch --label_key cell_type --savename results
+```
+
+#### Notebook
+
+We provide a notebook on how to install the scgraph on a labtop, and reproduce the results on using scgraph to evaluate cell embeddings of fibroblast family in human fetal lung.
+
+- [Data](https://drive.google.com/file/d/1a2UF4V_INGMKayCoMErZG-_kq_KuZmjA/view?usp=drive_link) 
+
+- [Notebook](jupyter_nb/scGraph-minimal.ipynb)
+
+#### Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
