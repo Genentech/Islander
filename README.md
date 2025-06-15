@@ -1,7 +1,6 @@
 ## Islander
-This repository is the official implementation for the paper **Metric Mirages in Cell Embeddings**. 
-
-Please contact wang.hanchen@gene.com or hanchenw@cs.stanford.edu if you have any questions.
+This repository is the official implementation for the paper **Limitations of cell embedding metrics assessed using drifting islands**, Nature Biotechnology 2025. 
+Please contact wang.hanchen@gene.com if you have any questions.
 
 
 
@@ -12,14 +11,13 @@ Please contact wang.hanchen@gene.com or hanchenw@cs.stanford.edu if you have any
 ### Citation
 
 ```bibtex
-@article {Islander,
-	author = {Hanchen Wang and Jure Leskovec and Aviv Regev},
-	title = {Metric Mirages in Cell Embeddings},
-	doi = {10.1101/2024.04.02.587824},
-	publisher = {Cold Spring Harbor Laboratory},
-	URL = {https://www.biorxiv.org/content/early/2024/04/02/2024.04.02.587824}
-	journal = {bioRxiv},
-	year = {2024},
+@article{Islander,
+  title={Limitations of cell embedding metrics assessed using drifting islands},
+  author={Wang, Hanchen and Leskovec, Jure and Regev, Aviv},
+  journal={Nature Biotechnology},
+  pages={1--4},
+  year={2025},
+  publisher={Nature Publishing Group}
 }
 ```
 
